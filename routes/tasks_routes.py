@@ -17,29 +17,27 @@ task_bp = Blueprint(
 @task_bp.route("/create", methods=["POST"])
 @jwt_required()
 def create(
-    list_id=1,
+    list_id=None,
 ):
 
     data = request.get_json()
+
     user_id_str = get_jwt_identity()
+    user_id = int(user_id_str)
 
     title = data.get("title")
     if not title:
         return jsonify({"error": "Invalid title"}), 400
 
-    description = data.get("description")
-    if not description:
-        return jsonify({"error": "Invalid description"}), 400
+    description = data.get("description", "")
 
-    end_date = data.get("end_date")
-    if not end_date:
-        return jsonify({"error": "Invalid end_date"}), 400
+    end_date = data.get("end_date", "")
 
-    priority_id = data.get("priority_id", '')
-    status_id = data.get("status_id", '')
+    priority_id = data.get("priority_id", None)
+    status_id = data.get("status_id", None)
 
     register = Task(
-        user_id=int(user_id_str),
+        user_id=user_id,
         name=title,
         list_id=list_id,
         description=description,
@@ -51,5 +49,5 @@ def create(
         conn=conn,
         cursor=cursor,
     ):
-        return jsonify({"success": "Task saved successfully"}), 201
+        return jsonify(register.convert_dic())
     return jsonify({"error": "error saving task"}), 500

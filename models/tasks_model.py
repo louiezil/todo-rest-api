@@ -62,7 +62,7 @@ class Task:
                 return False
         try:
             cursor.execute(
-                "INSERT INTO tasks (list_id,user_id,name,description,priority_id,end_date,status_id,date_created,date_updated)VALUES(?,?,?,?,?,?,?,?,?)",
+                "INSERT INTO tasks (list_id,user_id,name,description,priority_id,end_date,status_id,date_updated)VALUES(?,?,?,?,?,?,?,?)",
                 (
                     self.list_id,
                     self.user_id,
@@ -71,10 +71,10 @@ class Task:
                     self.priority_id,
                     self.end_date,
                     self.status_id,
-                    self.date_created,
                     self.date_updated,
                 ),
             )
+            print(self.name,self.list_id,self.user_id,self.description,self.date_created,self.status_id)
             conn.commit()
             self.task_id = cursor.lastrowid
             return True
