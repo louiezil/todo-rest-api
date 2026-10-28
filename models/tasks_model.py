@@ -79,7 +79,7 @@ class Task:
             self.task_id = cursor.lastrowid
             return True
         except Exception as e:
-            print(f"error updating task:{e}")
+            print(f"error saving task:{e}")
             return False
 
     @classmethod
