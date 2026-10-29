@@ -68,7 +68,7 @@ def create_tables(conn, cursor) -> bool:
         priority_id INTEGER,
         end_date TIMESTAMP,
         status_id INTEGER,
-        date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMp,
+        date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         date_updated TIMESTAMP,
         FOREIGN KEY (list_id) REFERENCES lists(id) ON DELETE SET NULL,
         FOREIGN KEY (priority_id) REFERENCES priorities(id) ON DELETE SET NULL,
