@@ -67,6 +67,7 @@ def login():
     # lets get the details
     if request.method == "POST":
         data = request.get_json()
+        
 
         username = data.get("username")
         if not username or len(username) < 4:

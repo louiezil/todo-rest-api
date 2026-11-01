@@ -92,3 +92,44 @@ class List:
         except Exception as e:
             print(f"fetching a list using @method failed :{e} ")
             return None
+
+    @classmethod
+    def fetch_by_userid_description(cls, cursor, user_id, description) -> List | None:
+        try:
+            cursor.execute(
+                "SELECT * FROM lists WHERE user_id = ? AND description = ? ",
+                (
+                    user_id,
+                    description,
+                ),
+            )
+            result = cursor.fetchone()
+            if not result:
+                return None
+            (
+                list_id,
+                user_id,
+                description,
+                date_created,
+                date_updated,
+            ) = result
+            return cls(
+                list_id=list_id,
+                user_id=user_id,
+                description=description,
+                date_created=date_created,
+                date_updated=date_updated,
+            )
+
+        except Exception as e:
+            print(f"error fetching list by userid:{e}")
+            return None
+
+    def find_delete(self, conn, cursor, list_id) -> bool:
+        try:
+            cursor.execute("DELETE FROM lists WHERE id = ?", (list_id,))
+            conn.commit()
+            return True
+        except Exception as e:
+            print(f"error with list deletion: {e}")
+            return False

@@ -4,10 +4,12 @@ from database import conn_cursor, create_tables
 from flask_jwt_extended import JWTManager
 from routes.auth_routes import auth_bp
 from routes.tasks_routes import task_bp
+from routes.List_route import list_bp
 # create app
 app = Flask(__name__)
 app.register_blueprint(auth_bp)
 app.register_blueprint(task_bp)
+app.register_blueprint(list_bp)
 # load config
 
 app.config.from_object(Config)
