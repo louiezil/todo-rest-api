@@ -6,27 +6,44 @@ from routes.auth_routes import auth_bp
 from routes.tasks_routes import task_bp
 from routes.List_route import list_bp
 from routes.tags_route import tags_bp
+
 # create app
 app = Flask(__name__)
+
+# load config
+app.config.from_object(Config)
+
+
+# attaCH JWT TO APP
+jwt = JWTManager(app)
+
+# load connection and create tables
+conn, cursor = conn_cursor()
+create_tables(conn, cursor)
+
+# Auto-seed priorities
+cursor.execute("SELECT COUNT(*) FROM priorities")
+if cursor.fetchone()[0] == 0:
+    for name in ["low", "medium", "high"]:
+        cursor.execute("INSERT INTO priorities (name) VALUES (?)", (name,))
+    conn.commit()
+
+# Auto-seed statuses
+cursor.execute("SELECT COUNT(*) FROM statuses")
+if cursor.fetchone()[0] == 0:
+    for name in ["todo", "doing", "done"]:
+        cursor.execute("INSERT INTO statuses (name) VALUES (?)", (name,))
+    conn.commit()
+
+# bluePrints registration
 app.register_blueprint(auth_bp)
 app.register_blueprint(task_bp)
 app.register_blueprint(list_bp)
 app.register_blueprint(tags_bp)
-# load config
-
-app.config.from_object(Config)
-
-# attaCH JWT TO APP
-
-jwt = JWTManager(app)
-
-
-# load connection and create tables
-
-conn, cursor = conn_cursor()
-create_tables(conn, cursor)
 
 
 if __name__ == "__main__":
-    app.run(debug=Config.DEBUG)
-    
+    import os
+
+    debug = os.environ.get("DEBUG", "false").lower() == "true"
+    app.run(debug=debug)

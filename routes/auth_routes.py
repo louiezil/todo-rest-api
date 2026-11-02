@@ -24,31 +24,31 @@ def register_user():
 
         if not name:
             error = "username is Empty..."
-            return jsonify({"error": error})
+            return jsonify({"error": error}), 400
         elif len(name) <= 3:
             error = "invalid username..."
-            return jsonify({"error": error})
+            return jsonify({"error": error}), 400
 
         if not email:
             error = "email is Empty..."
-            return jsonify({"error": error})
+            return jsonify({"error": error}), 400
         elif "@" not in email:
             error = "email must have an @ sign..."
-            return jsonify({"error": error})
+            return jsonify({"error": error}), 400
         elif len(email) <= 10:
             error = "invalid email address..."
-            return jsonify({"error": error})
+            return jsonify({"error": error}), 400
 
         if not password:
             error = "password is Empty..."
-            return jsonify({"error": error})
+            return jsonify({"error": error}), 400
 
         if not error:
             # check if user exists
             user_exists = check_user(cursor, name, email)
             if user_exists:
                 error = "user Already Exist"
-                return jsonify({"error": error})
+                return jsonify({"error": error}), 409
 
             hashed_password = generate_password_hash(password)
             register = User(
@@ -58,7 +58,7 @@ def register_user():
             )
             if register.save_update_user(conn, cursor):
                 return jsonify({"success": "User registered success"}), 201
-            return jsonify({"error": "user registration failed..."}), 204
+            return jsonify({"error": "user registration failed..."}), 500
 
 
 @auth_bp.route("/login", methods=["POST"])
@@ -67,17 +67,16 @@ def login():
     # lets get the details
     if request.method == "POST":
         data = request.get_json()
-        
 
         username = data.get("username")
         if not username or len(username) < 4:
             error = "Enter Valid username"
-            return jsonify({"error": error})
+            return jsonify({"error": error}), 400
 
         email = data.get("email")
         if not email or "@" not in email or len(email) < 10:
             error = "Enter Valid Email Address"
-            return jsonify({"error": error})
+            return jsonify({"error": error}), 400
 
         user_exist = check_user(
             cursor,
@@ -88,21 +87,21 @@ def login():
             password = data.get("password")
             if not password or len(password) < 5:
                 error = "Invalid Password input..."
-                return jsonify({"error": error})
+                return jsonify({"error": error}), 400
 
             db_password = user_exist[3]
             if check_password_hash(db_password, password):
                 token = create_access_token(identity=str(user_exist[0]))
                 return jsonify({"token": token}), 200
             error = "password Incorrect..."
-            return jsonify({"error": error}), 204
+            return jsonify({"error": error}), 400
         return (
             jsonify(
                 {
                     "error": "user not found...",
                 }
             ),
-            204,
+            400,
         )
 
 
@@ -110,12 +109,10 @@ def login():
 @jwt_required()
 def get_me():
     user_id_str = get_jwt_identity()
-    print(user_id_str)
 
     user_id = int(user_id_str)
 
     user_found = User.find_user(cursor, user_id)
     if user_found:
-        converted = user_found.convert()
-        return jsonify(converted), 200
-    return jsonify({"error": "user not found"}), 204
+        return jsonify(user_found.convert()), 200
+    return jsonify({"error": "user not found"}), 404
