@@ -88,3 +88,43 @@ class Tag:
         except Exception as e:
             print(f"error fetching tag : { e }")
             return None
+
+    @classmethod
+    def find_by_userid_name(cls, cursor, name, user_id):
+        try:
+            cursor.execute(
+                "SELECT * FROM tags WHERE tags.name = ? AND tags.user_id =?",
+                (
+                    name,
+                    user_id,
+                ),
+            )
+            tag = cursor.fetchone()
+            if tag:
+                (
+                    tag_id,
+                    user_id,
+                    name,
+                    date_created,
+                    date_updated,
+                ) = tag
+                return cls(
+                    tag_id=tag_id,
+                    user_id=user_id,
+                    name=name,
+                    date_created=date_created,
+                    date_updated=date_updated,
+                )
+            return None
+        except Exception as e:
+            print(f"error finding tag by Name and user_id : {e}")
+            return None
+
+    def find_delete(self, conn, cursor, tag_id):
+        try:
+            cursor.execute("DELETE FROM tags WHERE tags.id = ? ", (tag_id,))
+            conn.commit()
+            return True
+        except Exception as e:
+            print(f"error deleting tag:{e}")
+            return False
